@@ -1051,6 +1051,11 @@ function attachEvents() {
     });
   });
 
+  // onglets de l'admin
+  document.querySelectorAll('[data-onglet]').forEach(el => {
+    el.addEventListener('click', () => { state.ongletActif = el.getAttribute('data-onglet'); render(); });
+  });
+
   // pavé tactile (chiffres / lettres)
   document.querySelectorAll('[data-key]').forEach(el => {
     el.addEventListener('click', () => taperCode(el.getAttribute('data-key')));
