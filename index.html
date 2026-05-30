@@ -1,0 +1,1080 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+<meta http-equiv="Pragma" content="no-cache" />
+<meta http-equiv="Expires" content="0" />
+<title>Roi & Reine du Bal — Camille Sée</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=Italiana&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --noir: #0b0a0a;
+    --noir-soft: #161413;
+    --noir-card: #1d1a18;
+    --or: #d4af37;
+    --or-clair: #e8c96a;
+    --or-fonce: #9c7d20;
+    --creme: #f4ead5;
+    --rouge: #b3251f;
+    --gris: #6b6358;
+    --gris-clair: #c9c1b3;
+    --vert-ok: #4d8c5a;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  html, body { height: 100%; }
+  body {
+    font-family: 'Inter', sans-serif;
+    background: var(--noir);
+    color: var(--creme);
+    min-height: 100vh;
+    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+    user-select: none;
+  }
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background:
+      radial-gradient(ellipse at top, rgba(212, 175, 55, 0.10), transparent 50%),
+      radial-gradient(ellipse at bottom right, rgba(179, 37, 31, 0.07), transparent 50%);
+    pointer-events: none;
+    z-index: 0;
+  }
+  body::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      repeating-linear-gradient(45deg, transparent 0, transparent 60px, rgba(212, 175, 55, 0.015) 60px, rgba(212, 175, 55, 0.015) 61px);
+    pointer-events: none;
+    z-index: 0;
+  }
+  #app { position: relative; z-index: 1; min-height: 100vh; }
+
+  /* ============ ACCUEIL / VOTE — structure commune ============ */
+  .ecran {
+    min-height: 100vh;
+    min-height: 100svh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 4vh 20px;
+    text-align: center;
+    position: relative;
+  }
+  .ornement {
+    color: var(--or);
+    font-size: 20px;
+    letter-spacing: 12px;
+    margin-bottom: 6px;
+    opacity: 0.85;
+  }
+  .titre-grand {
+    font-family: 'Italiana', serif;
+    font-size: clamp(30px, 6vw, 60px);
+    font-weight: 400;
+    color: var(--or-clair);
+    line-height: 1.05;
+    letter-spacing: 2px;
+    text-shadow: 0 0 30px rgba(212, 175, 55, 0.3);
+    text-transform: uppercase;
+  }
+  .sous-titre {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(16px, 2.4vw, 22px);
+    font-style: italic;
+    color: var(--creme);
+    margin-top: 6px;
+    letter-spacing: 1px;
+  }
+  .college {
+    font-size: 10px;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    color: var(--gris-clair);
+    opacity: 0.7;
+    margin-top: 10px;
+  }
+  .dragon {
+    font-size: clamp(46px, 10vw, 80px);
+    line-height: 1;
+    margin-bottom: 4px;
+    filter: drop-shadow(0 0 24px rgba(179, 37, 31, 0.45));
+    animation: flotte 3.5s ease-in-out infinite;
+  }
+  @keyframes flotte { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-5px)} }
+
+  .cta {
+    background: linear-gradient(135deg, var(--or-fonce), var(--or));
+    color: var(--noir);
+    border: none;
+    padding: 16px 40px;
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 19px;
+    font-weight: 600;
+    letter-spacing: 2px;
+    cursor: pointer;
+    border-radius: 2px;
+    box-shadow: 0 10px 40px rgba(212, 175, 55, 0.25);
+    transition: transform 0.2s, box-shadow 0.2s;
+    text-transform: uppercase;
+    margin-top: 26px;
+  }
+  .cta:hover { transform: translateY(-2px); box-shadow: 0 15px 50px rgba(212, 175, 55, 0.4); }
+  .cta:active { transform: translateY(0); }
+  .cta:disabled { opacity: 0.35; cursor: not-allowed; box-shadow: none; }
+
+  .cta-second {
+    background: transparent;
+    color: var(--or-clair);
+    border: 1.5px solid var(--or-fonce);
+    padding: 12px 28px;
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 16px;
+    letter-spacing: 1.5px;
+    cursor: pointer;
+    border-radius: 2px;
+    text-transform: uppercase;
+    transition: all 0.2s;
+  }
+  .cta-second:hover { border-color: var(--or); background: rgba(212,175,55,0.08); }
+
+  .lien-admin {
+    position: absolute;
+    top: 14px; right: 16px;
+    color: var(--or);
+    opacity: 0.5;
+    cursor: pointer;
+    transition: all 0.25s;
+    padding: 6px;
+    z-index: 10;
+    line-height: 0;
+  }
+  .lien-admin svg { width: 26px; height: 26px; display: block; }
+  .lien-admin:hover { opacity: 1; transform: rotate(-15deg) scale(1.1); }
+
+  /* ============ SAISIE DU CODE (tactile) ============ */
+  .code-slots { display: flex; gap: 10px; justify-content: center; margin: 22px 0 8px; }
+  .slot {
+    width: clamp(46px, 13vw, 64px);
+    height: clamp(60px, 17vw, 84px);
+    border: 2px solid var(--or-fonce);
+    border-radius: 4px;
+    background: var(--noir-card);
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Italiana', serif;
+    font-size: clamp(28px, 7vw, 42px);
+    color: var(--or-clair);
+  }
+  .slot.actif { border-color: var(--or); box-shadow: 0 0 18px rgba(212,175,55,0.35); }
+  .slot.sep { width: 14px; border: none; background: none; color: var(--gris); }
+  .hint-code {
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: 17px;
+    color: var(--gris-clair);
+    margin-bottom: 14px;
+    min-height: 22px;
+  }
+  .pave {
+    display: grid;
+    gap: 10px;
+    width: min(420px, 92vw);
+    margin: 0 auto;
+  }
+  .pave.chiffres { grid-template-columns: repeat(3, 1fr); }
+  .pave.lettres { grid-template-columns: repeat(6, 1fr); }
+  .touche {
+    background: var(--noir-card);
+    border: 1.5px solid rgba(212,175,55,0.25);
+    color: var(--creme);
+    border-radius: 4px;
+    padding: 16px 0;
+    font-family: 'Italiana', serif;
+    font-size: clamp(20px, 5vw, 28px);
+    cursor: pointer;
+    transition: all 0.12s;
+  }
+  .pave.lettres .touche { font-size: clamp(16px, 4.2vw, 22px); padding: 14px 0; }
+  .touche:active { background: var(--or); color: var(--noir); transform: scale(0.95); }
+  .touche.efface { color: var(--rouge); border-color: rgba(179,37,31,0.4); }
+
+  /* ============ CHOIX ROI / REINE ============ */
+  .vote-wrap { width: min(640px, 94vw); margin: 0 auto; }
+  .cat-titre {
+    font-family: 'Italiana', serif;
+    font-size: 24px;
+    color: var(--or-clair);
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    margin: 26px 0 14px;
+    text-align: center;
+  }
+  .cat-titre .pico { color: var(--rouge); }
+  .grille-cand { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 12px; }
+  .carte-cand {
+    background: var(--noir-card);
+    border: 2px solid rgba(212,175,55,0.2);
+    border-radius: 4px;
+    padding: 18px 12px;
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 19px;
+    font-weight: 600;
+    color: var(--creme);
+    cursor: pointer;
+    transition: all 0.15s;
+    position: relative;
+  }
+  .carte-cand:active { transform: scale(0.97); }
+  .carte-cand.choisi {
+    border-color: var(--or);
+    background: linear-gradient(135deg, rgba(212,175,55,0.14), rgba(179,37,31,0.06));
+    box-shadow: 0 0 22px rgba(212,175,55,0.3);
+    color: var(--or-clair);
+  }
+  .carte-cand.choisi::after {
+    content: '✓';
+    position: absolute; top: 6px; right: 9px;
+    color: var(--or); font-size: 16px;
+  }
+
+  /* ============ MESSAGES ============ */
+  .message { margin: 16px auto; padding: 12px 18px; border-radius: 3px; font-size: 15px; max-width: 460px; }
+  .message.erreur { background: rgba(179,37,31,0.15); border: 1px solid var(--rouge); color: #f0b7b3; }
+  .message.ok { background: rgba(77,140,90,0.15); border: 1px solid var(--vert-ok); color: #b9e0c1; }
+
+  /* ============ MERCI ============ */
+  .merci-couronne { font-size: 72px; line-height: 1; animation: flotte 3s ease-in-out infinite; }
+
+  /* ============ ADMIN ============ */
+  .admin-wrap { width: min(900px, 94vw); margin: 0 auto; padding: 40px 0 80px; }
+  .admin-head { text-align: center; margin-bottom: 26px; }
+  .admin-head h1 { font-family: 'Italiana', serif; color: var(--or-clair); font-size: 32px; letter-spacing: 2px; }
+  .onglets { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; margin-bottom: 26px; }
+  .onglet {
+    background: transparent; border: 1px solid var(--or-fonce); color: var(--gris-clair);
+    padding: 9px 18px; border-radius: 2px; cursor: pointer; font-size: 13px;
+    letter-spacing: 1px; text-transform: uppercase; transition: all 0.2s;
+  }
+  .onglet.actif { background: var(--or); color: var(--noir); border-color: var(--or); font-weight: 600; }
+  .panneau { background: var(--noir-soft); border: 1px solid rgba(212,175,55,0.15); border-radius: 6px; padding: 26px; }
+  .panneau h2 { font-family: 'Italiana', serif; color: var(--or-clair); font-size: 22px; margin-bottom: 16px; letter-spacing: 1px; }
+  .ligne-ajout { display: flex; gap: 10px; margin-bottom: 18px; }
+  .input-txt {
+    flex: 1; background: var(--noir-card); border: 1.5px solid var(--or-fonce); color: var(--creme);
+    padding: 12px 14px; border-radius: 3px; font-size: 16px; font-family: 'Inter', sans-serif;
+  }
+  .input-txt:focus { outline: none; border-color: var(--or); }
+  .btn-or {
+    background: linear-gradient(135deg, var(--or-fonce), var(--or)); color: var(--noir);
+    border: none; padding: 12px 22px; border-radius: 3px; cursor: pointer; font-weight: 600;
+    letter-spacing: 1px; text-transform: uppercase; font-size: 13px; white-space: nowrap;
+  }
+  .btn-or:disabled { opacity: 0.4; cursor: not-allowed; }
+  .btn-danger {
+    background: transparent; color: var(--rouge); border: 1px solid var(--rouge);
+    padding: 10px 18px; border-radius: 3px; cursor: pointer; font-size: 13px; letter-spacing: 1px; text-transform: uppercase;
+  }
+  .liste-noms { display: flex; flex-direction: column; gap: 8px; }
+  .nom-item {
+    display: flex; align-items: center; justify-content: space-between;
+    background: var(--noir-card); border: 1px solid rgba(212,175,55,0.15);
+    border-radius: 3px; padding: 11px 14px; font-size: 15px;
+  }
+  .nom-item .x { color: var(--rouge); cursor: pointer; font-size: 20px; padding: 0 6px; line-height: 1; }
+  .deux-col { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+  @media (max-width: 640px) { .deux-col { grid-template-columns: 1fr; } }
+  .stat-grille { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 14px; margin-bottom: 20px; }
+  .stat-box { background: var(--noir-card); border: 1px solid rgba(212,175,55,0.15); border-radius: 4px; padding: 20px; text-align: center; }
+  .stat-box .num { font-family: 'Italiana', serif; font-size: 40px; color: var(--or-clair); }
+  .stat-box .lbl { font-size: 11px; text-transform: uppercase; letter-spacing: 2px; color: var(--gris-clair); margin-top: 6px; }
+  .note { font-size: 13px; color: var(--gris-clair); font-style: italic; line-height: 1.5; margin-top: 12px; }
+
+  /* ============ CODES IMPRIMABLES ============ */
+  .codes-grille { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 8px; margin-top: 18px; max-height: 360px; overflow: auto; padding: 4px; }
+  .code-chip {
+    background: var(--noir-card); border: 1px solid rgba(212,175,55,0.2); border-radius: 3px;
+    padding: 8px; text-align: center; font-family: 'Italiana', serif; font-size: 18px; color: var(--or-clair); letter-spacing: 2px;
+  }
+
+  /* ============ RÉVÉLATION ============ */
+  .reveal-ecran {
+    min-height: 100vh; min-height: 100svh; display: flex; flex-direction: column;
+    align-items: center; justify-content: center; padding: 4vh 20px; position: relative;
+  }
+  .reveal-titre { font-family:'Italiana',serif; color:var(--or-clair); font-size: clamp(26px,5vw,48px); letter-spacing:3px; text-transform:uppercase; text-align:center; text-shadow:0 0 30px rgba(212,175,55,0.3); }
+  .rouleaux { display: flex; gap: clamp(20px, 6vw, 70px); justify-content: center; margin: 40px 0; flex-wrap: wrap; }
+  .rouleau-bloc { text-align: center; }
+  .rouleau-label { font-family:'Cormorant Garamond',serif; font-style:italic; font-size: 20px; color: var(--gris-clair); letter-spacing:2px; margin-bottom: 12px; text-transform: uppercase; }
+  .rouleau-label .ic { font-size: 26px; display:block; margin-bottom: 4px; }
+  .rouleau-fenetre {
+    width: min(360px, 86vw); height: 130px; overflow: hidden; position: relative;
+    border: 2px solid var(--or-fonce); border-radius: 6px; background: var(--noir-card);
+    box-shadow: inset 0 0 40px rgba(0,0,0,0.7);
+  }
+  .rouleau-fenetre::before, .rouleau-fenetre::after {
+    content:''; position:absolute; left:0; right:0; height:42px; z-index:3; pointer-events:none;
+  }
+  .rouleau-fenetre::before { top:0; background: linear-gradient(var(--noir-card), transparent); }
+  .rouleau-fenetre::after { bottom:0; background: linear-gradient(transparent, var(--noir-card)); }
+  .rouleau-strip { position:absolute; left:0; right:0; top:0; will-change: transform; }
+  .rouleau-item {
+    height: 130px; display:flex; align-items:center; justify-content:center;
+    font-family:'Cormorant Garamond',serif; font-weight:700; font-size: clamp(22px,5vw,34px);
+    color: var(--creme); padding: 0 14px; text-align:center;
+  }
+  .rouleau-fenetre.gagne { border-color: var(--or); box-shadow: 0 0 50px rgba(212,175,55,0.55), inset 0 0 30px rgba(212,175,55,0.15); }
+  .rouleau-fenetre.gagne .rouleau-item.cible { color: var(--or-clair); text-shadow: 0 0 24px rgba(212,175,55,0.7); }
+  .voix-gagnant { margin-top: 12px; min-height: 26px; font-family:'Cormorant Garamond',serif; font-style:italic; font-size:18px; color: var(--or); opacity:0; transition: opacity 0.6s; }
+  .voix-gagnant.show { opacity: 1; }
+  .couronne-finale { font-size: 54px; opacity:0; transform: translateY(10px); transition: all 0.6s; }
+  .couronne-finale.show { opacity:1; transform: translateY(0); animation: flotte 3s ease-in-out infinite; }
+
+  .liste-vide { text-align:center; color: var(--gris); font-style:italic; padding: 30px; }
+  .retour-mini { position:absolute; top:16px; left:18px; color:var(--gris-clair); cursor:pointer; font-size:13px; letter-spacing:1px; text-transform:uppercase; opacity:0.7; }
+  .retour-mini:hover { opacity:1; color:var(--or-clair); }
+
+  @media print {
+    body { background: #fff; color: #000; }
+    body::before, body::after { display:none; }
+    body * { visibility: hidden; }
+    .print-zone, .print-zone * { visibility: visible; }
+    .print-zone { display: block !important; position: absolute; left: 0; top: 0; width: 100%; }
+    .print-slip {
+      border: 1.5px dashed #999; border-radius: 6px; padding: 14px 10px; text-align: center;
+      page-break-inside: avoid; margin: 0;
+    }
+    .print-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+    .print-slip .pt-orn { color:#b8962e; letter-spacing:6px; font-size:12px; }
+    .print-slip .pt-evt { font-family:'Cormorant Garamond',serif; font-size:11px; color:#444; margin:4px 0; }
+    .print-slip .pt-code { font-family:'Italiana',serif; font-size:26px; letter-spacing:4px; color:#000; margin:4px 0; }
+    .print-slip .pt-note { font-size:9px; color:#666; }
+  }
+  .print-zone { display: none; }
+</style>
+</head>
+<body>
+<div id="app"></div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getDatabase, ref, onValue, update } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+
+// ════════════════════════════════════════════════════════════
+//  CONFIG (même projet Firebase que la playlist)
+// ════════════════════════════════════════════════════════════
+const FIREBASE_CONFIG = {
+  apiKey: "AIzaSyBz7evFlZO3CA0PXDW11TpHPGKdJ3dXwY8",
+  authDomain: "see-la-playlist-2026.firebaseapp.com",
+  databaseURL: "https://see-la-playlist-2026-default-rtdb.europe-west1.firebasedatabase.app",
+  projectId: "see-la-playlist-2026",
+  storageBucket: "see-la-playlist-2026.firebasestorage.app",
+  messagingSenderId: "858606602335",
+  appId: "1:858606602335:web:8842445417326fb62933ea"
+};
+const ADMIN_PASSWORD = "baldragon";
+
+// Toutes les données de l'élection vivent sous "election/" pour ne rien
+// mélanger avec les chansons (qui sont sous "votes/", "candidatures/"…).
+const ROOT = 'election';
+const DB_URL = FIREBASE_CONFIG.databaseURL.replace(/\/$/, '');
+
+// Alphabet des codes : 3 chiffres + 2 lettres. On enlève I et O (confusion 1/0).
+const LETTRES = "ABCDEFGHJKLMNPQRSTUVWXYZ".split('');
+
+// ════════════════════════════════════════════════════════════
+//  INIT FIREBASE
+// ════════════════════════════════════════════════════════════
+let db = null, firebaseReady = false;
+try {
+  const app = initializeApp(FIREBASE_CONFIG);
+  db = getDatabase(app);
+  firebaseReady = true;
+} catch (e) {
+  console.error("Erreur Firebase :", e);
+}
+
+// ════════════════════════════════════════════════════════════
+//  ÉTAT
+// ════════════════════════════════════════════════════════════
+const state = {
+  vue: 'accueil',          // accueil | vote-code | vote-choix | vote-merci | admin-login | admin | reveal
+  // données Firebase
+  candidatsRoi: {},        // {id: {nom}}
+  candidatsReine: {},      // {id: {nom}}
+  votes: {},               // {CODE: {roi, reine, ts}}
+  codes: {},               // {CODE: true}
+  // saisie du vote
+  codeSaisi: '',
+  codeValide: null,        // le code accepté pour le vote en cours
+  choixRoi: null,
+  choixReine: null,
+  enValidation: false,
+  message: null,
+  // admin
+  ongletActif: 'candidats',
+  // révélation
+  revealEnCours: false,
+};
+
+// ════════════════════════════════════════════════════════════
+//  ÉCOUTE FIREBASE
+// ════════════════════════════════════════════════════════════
+function startListeners() {
+  if (!firebaseReady) return;
+  onValue(ref(db, ROOT + '/candidatsRoi'),  s => { state.candidatsRoi  = s.val() || {}; render(); });
+  onValue(ref(db, ROOT + '/candidatsReine'), s => { state.candidatsReine = s.val() || {}; render(); });
+  onValue(ref(db, ROOT + '/votes'),          s => { state.votes = s.val() || {}; render(); });
+  onValue(ref(db, ROOT + '/codes'),          s => { state.codes = s.val() || {}; render(); });
+}
+
+// Lecture directe REST (fiable juste avant écriture)
+async function fetchJson(path) {
+  const r = await fetch(DB_URL + '/' + ROOT + '/' + path + '.json', { cache: 'no-store' });
+  if (!r.ok) throw new Error('HTTP ' + r.status);
+  return r.json();
+}
+async function patchRoot(updates) {
+  const r = await fetch(DB_URL + '/' + ROOT + '/.json', {
+    method: 'PATCH', body: JSON.stringify(updates),
+    headers: { 'Content-Type': 'application/json' }
+  });
+  if (!r.ok) throw new Error('HTTP ' + r.status);
+}
+
+// ════════════════════════════════════════════════════════════
+//  OUTILS
+// ════════════════════════════════════════════════════════════
+function escapeHtml(s) {
+  return String(s == null ? '' : s)
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+}
+function navigate(vue) {
+  state.vue = vue;
+  state.message = null;
+  if (vue === 'admin') location.hash = '#/admin';
+  else if (vue === 'reveal') location.hash = '#/reveal';
+  else if (vue === 'vote-code' || vue === 'vote-choix') location.hash = '#/vote';
+  else location.hash = '';
+  render();
+}
+function listeOrdonnee(obj) {
+  // renvoie [{id, nom}] triés par nom
+  return Object.entries(obj || {})
+    .map(([id, v]) => ({ id, nom: (v && v.nom) || '' }))
+    .filter(c => c.nom)
+    .sort((a, b) => a.nom.localeCompare(b.nom, 'fr'));
+}
+function genererCode(existants) {
+  for (let essais = 0; essais < 10000; essais++) {
+    let c = '';
+    for (let i = 0; i < 3; i++) c += Math.floor(Math.random() * 10);
+    for (let i = 0; i < 2; i++) c += LETTRES[Math.floor(Math.random() * LETTRES.length)];
+    if (!existants[c]) return c;
+  }
+  return null;
+}
+
+// ════════════════════════════════════════════════════════════
+//  VOTE
+// ════════════════════════════════════════════════════════════
+function taperCode(ch) {
+  if (state.codeSaisi.length >= 5) return;
+  state.codeSaisi += ch;
+  state.message = null;
+  if (state.codeSaisi.length === 5) validerCode();
+  else render();
+}
+function effacerCode() {
+  state.codeSaisi = state.codeSaisi.slice(0, -1);
+  state.message = null;
+  render();
+}
+async function validerCode() {
+  const code = state.codeSaisi;
+  render();
+  // 1. le code doit exister
+  if (!state.codes[code]) {
+    state.message = { type: 'erreur', texte: "Ce code n'est pas valide. Vérifie ta saisie." };
+    state.codeSaisi = '';
+    render();
+    return;
+  }
+  // 2. le code ne doit pas déjà avoir voté (mémoire + vérif serveur)
+  let dejaVote = !!state.votes[code];
+  if (!dejaVote && firebaseReady) {
+    try { dejaVote = (await fetchJson('votes/' + code)) != null; } catch (e) {}
+  }
+  if (dejaVote) {
+    state.message = { type: 'erreur', texte: "Ce code a déjà servi à voter." };
+    state.codeSaisi = '';
+    render();
+    return;
+  }
+  state.codeValide = code;
+  state.choixRoi = null;
+  state.choixReine = null;
+  navigate('vote-choix');
+}
+
+async function envoyerVote() {
+  if (state.enValidation) return;
+  if (!state.choixRoi || !state.choixReine) {
+    state.message = { type: 'erreur', texte: "Choisis un roi ET une reine avant de valider." };
+    render();
+    return;
+  }
+  if (!firebaseReady) {
+    state.message = { type: 'erreur', texte: "Base de données indisponible. Préviens un encadrant." };
+    render();
+    return;
+  }
+  state.enValidation = true; state.message = null; render();
+
+  const code = state.codeValide;
+  // anti double-vote : re-vérif serveur juste avant écriture
+  try {
+    const existant = await fetchJson('votes/' + code);
+    if (existant != null) {
+      state.message = { type: 'erreur', texte: "Ce code a déjà voté." };
+      state.enValidation = false;
+      retourAccueilVote();
+      return;
+    }
+  } catch (e) { /* on continue */ }
+
+  try {
+    await patchRoot({
+      ['votes/' + code]: { roi: state.choixRoi, reine: state.choixReine, ts: Date.now() }
+    });
+    state.votes[code] = { roi: state.choixRoi, reine: state.choixReine };
+    state.enValidation = false;
+    navigate('vote-merci');
+    // retour auto à la saisie du code pour la personne suivante
+    setTimeout(() => { if (state.vue === 'vote-merci') retourAccueilVote(); }, 6000);
+  } catch (e) {
+    state.enValidation = false;
+    state.message = { type: 'erreur', texte: "Échec de l'envoi. Réessaie." };
+    render();
+  }
+}
+function retourAccueilVote() {
+  state.codeSaisi = ''; state.codeValide = null;
+  state.choixRoi = null; state.choixReine = null;
+  state.message = null; state.enValidation = false;
+  navigate('vote-code');
+}
+
+// ════════════════════════════════════════════════════════════
+//  ADMIN — candidats
+// ════════════════════════════════════════════════════════════
+async function ajouterCandidat(categorie) {
+  const inp = document.getElementById('input-' + categorie);
+  if (!inp) return;
+  const nom = inp.value.trim();
+  if (!nom) return;
+  const id = 'c' + Date.now() + Math.random().toString(36).slice(2, 7);
+  const cle = categorie === 'roi' ? 'candidatsRoi' : 'candidatsReine';
+  try { await patchRoot({ [cle + '/' + id]: { nom } }); inp.value = ''; }
+  catch (e) { alert("Erreur lors de l'ajout."); }
+}
+async function supprimerCandidat(categorie, id) {
+  const cle = categorie === 'roi' ? 'candidatsRoi' : 'candidatsReine';
+  try {
+    await fetch(DB_URL + '/' + ROOT + '/' + cle + '/' + id + '.json', { method: 'DELETE' });
+  } catch (e) { alert("Erreur lors de la suppression."); }
+}
+
+// ════════════════════════════════════════════════════════════
+//  ADMIN — codes
+// ════════════════════════════════════════════════════════════
+async function genererCodes(nb) {
+  const dejaCount = Object.keys(state.codes).length;
+  if (dejaCount > 0 && !confirm(dejaCount + " codes existent déjà. Générer " + nb + " codes EN PLUS ?")) return;
+  const updates = {};
+  const local = Object.assign({}, state.codes);
+  for (let i = 0; i < nb; i++) {
+    const c = genererCode(local);
+    if (!c) break;
+    local[c] = true; updates['codes/' + c] = true;
+  }
+  try { await patchRoot(updates); }
+  catch (e) { alert("Erreur lors de la génération."); }
+}
+async function reinitVotes() {
+  if (!confirm("Effacer TOUS les votes ? Les codes restent valides. Action irréversible.")) return;
+  try { await fetch(DB_URL + '/' + ROOT + '/votes.json', { method: 'DELETE' }); }
+  catch (e) { alert("Erreur."); }
+}
+async function effacerCodes() {
+  if (!confirm("Supprimer TOUS les codes générés ? (à ne faire que si tu veux repartir de zéro)")) return;
+  try { await fetch(DB_URL + '/' + ROOT + '/codes.json', { method: 'DELETE' }); }
+  catch (e) { alert("Erreur."); }
+}
+function imprimerCodes() {
+  const codes = Object.keys(state.codes).sort();
+  if (codes.length === 0) { alert("Aucun code à imprimer. Génère-les d'abord."); return; }
+  window.print();
+}
+
+// ════════════════════════════════════════════════════════════
+//  TALLY (décompte des voix)
+// ════════════════════════════════════════════════════════════
+function compter() {
+  const roi = {}, reine = {};
+  Object.values(state.votes).forEach(v => {
+    if (v.roi)   roi[v.roi]    = (roi[v.roi]   || 0) + 1;
+    if (v.reine) reine[v.reine] = (reine[v.reine] || 0) + 1;
+  });
+  return { roi, reine };
+}
+function gagnant(comptes, candidats) {
+  const liste = listeOrdonnee(candidats);
+  let best = null, bestN = -1;
+  liste.forEach(c => {
+    const n = comptes[c.id] || 0;
+    if (n > bestN) { bestN = n; best = c; }
+  });
+  return best ? { nom: best.nom, voix: bestN, id: best.id } : null;
+}
+
+// ════════════════════════════════════════════════════════════
+//  RÉVÉLATION — animation des rouleaux
+// ════════════════════════════════════════════════════════════
+function lancerRevelation() {
+  const roiList = listeOrdonnee(state.candidatsRoi);
+  const reineList = listeOrdonnee(state.candidatsReine);
+  if (roiList.length === 0 || reineList.length === 0) {
+    state.message = { type: 'erreur', texte: "Il faut au moins un candidat roi et une candidate reine." };
+    render(); return;
+  }
+  const comptes = compter();
+  const gRoi = gagnant(comptes.roi, state.candidatsRoi);
+  const gReine = gagnant(comptes.reine, state.candidatsReine);
+
+  state.revealEnCours = true;
+  render();
+
+  // démarre les deux rouleaux ; le roi se fige à ~12 s, la reine à ~20 s
+  setTimeout(() => {
+    spinRouleau('roi', roiList, gRoi, 12000, () => {
+      afficherVoix('roi', gRoi);
+    });
+    spinRouleau('reine', reineList, gReine, 20000, () => {
+      afficherVoix('reine', gReine);
+      lancerConfettis();
+    });
+  }, 60);
+}
+function spinRouleau(cat, liste, gagnantObj, dureeMs, onDone) {
+  const strip = document.getElementById('strip-' + cat);
+  const fenetre = document.getElementById('fenetre-' + cat);
+  if (!strip) return;
+  const H = 130; // hauteur d'un item
+  const n = liste.length;
+  const idxGagnant = Math.max(0, liste.findIndex(c => c.id === (gagnantObj && gagnantObj.id)));
+  const loops = 8; // nombre de tours complets avant de s'arrêter
+  const finalIndex = loops * n + idxGagnant;
+  const offset = finalIndex * H;
+
+  // reset
+  strip.style.transition = 'none';
+  strip.style.transform = 'translateY(0)';
+  // force reflow
+  void strip.offsetHeight;
+  strip.style.transition = `transform ${dureeMs}ms cubic-bezier(0.12, 0.62, 0.16, 1)`;
+  strip.style.transform = `translateY(-${offset}px)`;
+
+  setTimeout(() => {
+    // marquer l'item gagnant
+    if (fenetre) fenetre.classList.add('gagne');
+    const items = strip.querySelectorAll('.rouleau-item');
+    if (items[finalIndex]) items[finalIndex].classList.add('cible');
+    if (onDone) onDone();
+  }, dureeMs + 50);
+}
+function afficherVoix(cat, g) {
+  const el = document.getElementById('voix-' + cat);
+  const cour = document.getElementById('couronne-' + cat);
+  if (el && g) { el.textContent = g.voix + (g.voix > 1 ? ' voix' : ' voix'); el.classList.add('show'); }
+  if (cour) cour.classList.add('show');
+}
+function lancerConfettis() {
+  const couleurs = ['#d4af37', '#e8c96a', '#b3251f', '#f4ead5'];
+  for (let i = 0; i < 80; i++) {
+    const c = document.createElement('div');
+    c.style.cssText = `position:fixed;top:-20px;left:${Math.random()*100}vw;width:9px;height:9px;
+      background:${couleurs[i%couleurs.length]};z-index:9999;border-radius:1px;pointer-events:none;
+      transform:rotate(${Math.random()*360}deg);`;
+    document.body.appendChild(c);
+    const chute = 2200 + Math.random() * 2000;
+    c.animate([
+      { transform: `translateY(0) rotate(0deg)`, opacity: 1 },
+      { transform: `translateY(105vh) rotate(${720*(Math.random()>.5?1:-1)}deg)`, opacity: 0.9 }
+    ], { duration: chute, easing: 'cubic-bezier(0.3,0.7,0.5,1)' });
+    setTimeout(() => c.remove(), chute);
+  }
+}
+
+// ════════════════════════════════════════════════════════════
+//  RENDER
+// ════════════════════════════════════════════════════════════
+const ICONE_ROUAGE = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>`;
+
+function render() {
+  const app = document.getElementById('app');
+  // Pendant que les rouleaux tournent, on ne re-render pas : un vote tardif
+  // ou un rafraîchissement Firebase casserait l'animation en cours.
+  if (state.vue === 'reveal' && state.revealEnCours && app.querySelector('#strip-roi')) return;
+  if (!firebaseReady) {
+    app.innerHTML = `<div class="ecran"><div class="dragon">🐉</div>
+      <div class="titre-grand">Configuration</div>
+      <p class="sous-titre">La base de données n'est pas joignable.</p></div>`;
+    return;
+  }
+  let html = '';
+  switch (state.vue) {
+    case 'accueil':     html = vueAccueil(); break;
+    case 'vote-code':   html = vueVoteCode(); break;
+    case 'vote-choix':  html = vueVoteChoix(); break;
+    case 'vote-merci':  html = vueMerci(); break;
+    case 'admin-login': html = vueAdminLogin(); break;
+    case 'admin':       html = vueAdmin(); break;
+    case 'reveal':      html = vueReveal(); break;
+    default:            html = vueAccueil();
+  }
+  app.innerHTML = html;
+  attachEvents();
+}
+
+function vueAccueil() {
+  return `
+    <div class="ecran">
+      <div class="lien-admin" data-action="go-admin" title="Espace organisateurs">${ICONE_ROUAGE}</div>
+      <div class="dragon">🐉</div>
+      <div class="ornement">✦ ✦ ✦</div>
+      <h1 class="titre-grand">Roi &amp; Reine du Bal</h1>
+      <p class="sous-titre">L'élection royale de la soirée</p>
+      <div class="college">Collège Camille Sée</div>
+      <button class="cta" data-action="go-vote">Voter maintenant</button>
+    </div>`;
+}
+
+function vueVoteCode() {
+  const code = state.codeSaisi;
+  const slots = [];
+  for (let i = 0; i < 5; i++) {
+    if (i === 3) slots.push(`<div class="slot sep">·</div>`);
+    const actif = i === code.length ? 'actif' : '';
+    slots.push(`<div class="slot ${actif}">${escapeHtml(code[i] || '')}</div>`);
+  }
+  const phase = code.length < 3 ? 'chiffres' : 'lettres';
+  const hint = code.length < 3 ? "Saisis les 3 chiffres de ton code"
+             : code.length < 5 ? "Maintenant les 2 lettres"
+             : "C'est parti…";
+  let pave = '';
+  if (phase === 'chiffres') {
+    let touches = '';
+    for (let d = 1; d <= 9; d++) touches += `<button class="touche" data-key="${d}">${d}</button>`;
+    touches += `<button class="touche efface" data-action="efface">⌫</button>`;
+    touches += `<button class="touche" data-key="0">0</button>`;
+    touches += `<button class="touche efface" data-action="efface">⌫</button>`;
+    pave = `<div class="pave chiffres">${touches}</div>`;
+  } else {
+    let touches = LETTRES.map(l => `<button class="touche" data-key="${l}">${l}</button>`).join('');
+    touches += `<button class="touche efface" data-action="efface">⌫</button>`;
+    pave = `<div class="pave lettres">${touches}</div>`;
+  }
+  return `
+    <div class="ecran">
+      <div class="lien-admin" data-action="go-admin" title="Espace organisateurs">${ICONE_ROUAGE}</div>
+      <div class="ornement" style="font-size:32px">♛</div>
+      <h1 class="titre-grand" style="font-size:clamp(24px,5vw,42px)">Ton code royal</h1>
+      <div class="code-slots">${slots.join('')}</div>
+      <div class="hint-code">${hint}</div>
+      ${state.message ? `<div class="message ${state.message.type}">${escapeHtml(state.message.texte)}</div>` : ''}
+      ${pave}
+    </div>`;
+}
+
+function carteCand(cat, c, choisi) {
+  return `<div class="carte-cand ${choisi ? 'choisi' : ''}" data-action="choisir" data-cat="${cat}" data-id="${escapeHtml(c.id)}">${escapeHtml(c.nom)}</div>`;
+}
+function vueVoteChoix() {
+  const roi = listeOrdonnee(state.candidatsRoi);
+  const reine = listeOrdonnee(state.candidatsReine);
+  const pret = state.choixRoi && state.choixReine;
+  return `
+    <div class="ecran" style="justify-content:flex-start;padding-top:5vh">
+      <div class="ornement" style="font-size:30px">♛ ♛</div>
+      <h1 class="titre-grand" style="font-size:clamp(22px,4.5vw,36px)">À toi de couronner</h1>
+      <div class="vote-wrap">
+        <div class="cat-titre"><span class="pico">♚</span> Le Roi</div>
+        ${roi.length ? `<div class="grille-cand">${roi.map(c => carteCand('roi', c, state.choixRoi === c.id)).join('')}</div>`
+                     : `<div class="liste-vide">Aucun candidat enregistré.</div>`}
+        <div class="cat-titre"><span class="pico">♛</span> La Reine</div>
+        ${reine.length ? `<div class="grille-cand">${reine.map(c => carteCand('reine', c, state.choixReine === c.id)).join('')}</div>`
+                       : `<div class="liste-vide">Aucune candidate enregistrée.</div>`}
+        ${state.message ? `<div class="message ${state.message.type}">${escapeHtml(state.message.texte)}</div>` : ''}
+        <div style="text-align:center">
+          <button class="cta" data-action="valider-vote" ${pret && !state.enValidation ? '' : 'disabled'}>
+            ${state.enValidation ? 'Envoi…' : 'Valider mon vote'}
+          </button>
+        </div>
+        <div style="text-align:center;margin-top:14px">
+          <span class="retour-mini" style="position:static" data-action="annuler-vote">↩ Recommencer</span>
+        </div>
+      </div>
+    </div>`;
+}
+
+function vueMerci() {
+  return `
+    <div class="ecran">
+      <div class="merci-couronne">♛</div>
+      <div class="ornement">✦ ✦ ✦</div>
+      <h1 class="titre-grand">Vote enregistré !</h1>
+      <p class="sous-titre">Merci, ton choix royal est dans l'urne.</p>
+      <button class="cta-second" data-action="vote-suivant" style="margin-top:24px">Au suivant →</button>
+    </div>`;
+}
+
+function vueAdminLogin() {
+  return `
+    <div class="ecran">
+      <div class="retour-mini" data-action="go-accueil">← Retour</div>
+      <div class="ornement" style="font-size:30px">🐉</div>
+      <h1 class="titre-grand" style="font-size:clamp(24px,5vw,40px)">Espace organisateurs</h1>
+      <div style="width:min(360px,90vw);margin-top:24px">
+        <input class="input-txt" type="password" id="input-password" placeholder="Mot de passe" style="width:100%;text-align:center" />
+        ${state.message ? `<div class="message ${state.message.type}">${escapeHtml(state.message.texte)}</div>` : ''}
+        <button class="cta" data-action="connect-admin" style="width:100%;margin-top:14px">Entrer</button>
+      </div>
+    </div>`;
+}
+
+function vueAdmin() {
+  const onglet = state.ongletActif;
+  const tab = (id, label) => `<button class="onglet ${onglet === id ? 'actif' : ''}" data-onglet="${id}">${label}</button>`;
+  let contenu = '';
+  if (onglet === 'candidats') contenu = panneauCandidats();
+  else if (onglet === 'codes') contenu = panneauCodes();
+  else if (onglet === 'reveal') contenu = panneauReveal();
+  else if (onglet === 'reglages') contenu = panneauReglages();
+  return `
+    <div class="admin-wrap">
+      <div class="retour-mini" data-action="go-accueil">← Accueil</div>
+      <div class="admin-head">
+        <div class="ornement" style="font-size:26px">🐉</div>
+        <h1>Espace organisateurs</h1>
+      </div>
+      <div class="onglets">
+        ${tab('candidats', 'Candidats')}
+        ${tab('codes', 'Codes')}
+        ${tab('reveal', 'Révélation')}
+        ${tab('reglages', 'Réglages')}
+      </div>
+      ${contenu}
+    </div>`;
+}
+
+function colonneCands(cat, titre, candidats) {
+  const liste = listeOrdonnee(candidats);
+  return `
+    <div>
+      <h2>${titre} <span style="color:var(--gris);font-size:15px">(${liste.length})</span></h2>
+      <div class="ligne-ajout">
+        <input class="input-txt" id="input-${cat}" placeholder="Nom du candidat" />
+        <button class="btn-or" data-action="ajouter-cand" data-cat="${cat}">Ajouter</button>
+      </div>
+      <div class="liste-noms">
+        ${liste.length ? liste.map(c => `
+          <div class="nom-item"><span>♛ ${escapeHtml(c.nom)}</span>
+            <span class="x" data-action="suppr-cand" data-cat="${cat}" data-id="${escapeHtml(c.id)}">×</span></div>
+        `).join('') : `<div class="liste-vide">Aucun nom pour l'instant.</div>`}
+      </div>
+    </div>`;
+}
+function panneauCandidats() {
+  return `<div class="panneau">
+    <div class="deux-col">
+      ${colonneCands('roi', '♚ Candidats Roi', state.candidatsRoi)}
+      ${colonneCands('reine', '♛ Candidates Reine', state.candidatsReine)}
+    </div>
+    <p class="note">Astuce : appuie sur Entrée dans le champ pour ajouter rapidement plusieurs noms à la suite.</p>
+  </div>`;
+}
+
+function panneauCodes() {
+  const codes = Object.keys(state.codes).sort();
+  const nbVotes = Object.keys(state.votes).length;
+  return `<div class="panneau">
+    <h2>Codes de vote</h2>
+    <div class="stat-grille">
+      <div class="stat-box"><div class="num">${codes.length}</div><div class="lbl">Codes générés</div></div>
+      <div class="stat-box"><div class="num">${nbVotes}</div><div class="lbl">Codes ayant voté</div></div>
+      <div class="stat-box"><div class="num">${Math.max(0, codes.length - nbVotes)}</div><div class="lbl">Restants</div></div>
+    </div>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center">
+      <button class="btn-or" data-action="generer" data-nb="200">Générer 200 codes</button>
+      <button class="btn-or" data-action="generer" data-nb="50">+ 50 codes</button>
+      <button class="btn-or" data-action="imprimer">🖨 Imprimer / découper</button>
+    </div>
+    <p class="note">Génère les codes une fois, imprime la planche (4 par colonne), découpe et distribue à l'entrée. Chaque code ne peut voter qu'une seule fois.</p>
+    ${codes.length ? `<div class="codes-grille">${codes.map(c => `<div class="code-chip">${c.slice(0,3)} ${c.slice(3)}</div>`).join('')}</div>` : ''}
+  </div>
+  ${codes.length ? planchesImpression(codes) : ''}`;
+}
+function planchesImpression(codes) {
+  return `<div class="print-zone">
+    <div class="print-grid">
+      ${codes.map(c => `
+        <div class="print-slip">
+          <div class="pt-orn">✦ ✦ ✦</div>
+          <div class="pt-evt">Bal — Roi &amp; Reine · Collège Camille Sée</div>
+          <div class="pt-code">${c.slice(0,3)} ${c.slice(3)}</div>
+          <div class="pt-note">1 vote — à conserver</div>
+        </div>`).join('')}
+    </div>
+  </div>`;
+}
+
+function panneauReveal() {
+  const nbVotes = Object.keys(state.votes).length;
+  const roiN = listeOrdonnee(state.candidatsRoi).length;
+  const reineN = listeOrdonnee(state.candidatsReine).length;
+  return `<div class="panneau">
+    <h2>Lancer la révélation</h2>
+    <div class="stat-grille">
+      <div class="stat-box"><div class="num">${nbVotes}</div><div class="lbl">Votes reçus</div></div>
+      <div class="stat-box"><div class="num">${roiN}</div><div class="lbl">Candidats roi</div></div>
+      <div class="stat-box"><div class="num">${reineN}</div><div class="lbl">Candidates reine</div></div>
+    </div>
+    <p class="note">À utiliser sur l'ordinateur de la scène. Les rouleaux défilent ~20 s puis se figent sur le roi (à 12 s) et la reine (à 20 s), avec leur nombre de voix.</p>
+    <div style="text-align:center;margin-top:18px">
+      <button class="btn-or" data-action="ouvrir-reveal" style="font-size:16px;padding:16px 34px" ${roiN && reineN ? '' : 'disabled'}>Ouvrir l'écran de révélation</button>
+    </div>
+    ${(!roiN || !reineN) ? `<p class="note" style="color:var(--rouge);text-align:center">Ajoute au moins un candidat dans chaque catégorie.</p>` : ''}
+  </div>`;
+}
+
+function panneauReglages() {
+  return `<div class="panneau">
+    <h2>Réglages</h2>
+    <p class="note" style="margin-top:0">Actions sensibles — à manier avec précaution.</p>
+    <div style="display:flex;flex-direction:column;gap:14px;margin-top:16px;max-width:420px">
+      <button class="btn-danger" data-action="reinit-votes">Effacer tous les votes (garder les codes)</button>
+      <button class="btn-danger" data-action="effacer-codes">Supprimer tous les codes</button>
+      <button class="cta-second" data-action="deconnexion" style="margin-top:6px">Se déconnecter</button>
+    </div>
+  </div>`;
+}
+
+function rouleauHtml(cat, label, icone, liste) {
+  // strip = la liste répétée (loops+1) fois pour avoir de la matière à dérouler
+  const loops = 9;
+  let items = '';
+  for (let l = 0; l < loops; l++) {
+    items += liste.map(c => `<div class="rouleau-item">${escapeHtml(c.nom)}</div>`).join('');
+  }
+  return `
+    <div class="rouleau-bloc">
+      <div class="rouleau-label"><span class="ic" id="couronne-${cat}">${icone}</span>${label}</div>
+      <div class="rouleau-fenetre" id="fenetre-${cat}">
+        <div class="rouleau-strip" id="strip-${cat}">${items}</div>
+      </div>
+      <div class="voix-gagnant" id="voix-${cat}"></div>
+    </div>`;
+}
+function vueReveal() {
+  const roi = listeOrdonnee(state.candidatsRoi);
+  const reine = listeOrdonnee(state.candidatsReine);
+  return `
+    <div class="reveal-ecran">
+      <div class="retour-mini" data-action="go-admin">← Admin</div>
+      <div class="ornement" style="font-size:30px">🐉</div>
+      <h1 class="reveal-titre">Le couple royal</h1>
+      <div class="rouleaux">
+        ${rouleauHtml('roi', 'Roi', '♚', roi)}
+        ${rouleauHtml('reine', 'Reine', '♛', reine)}
+      </div>
+      ${state.message ? `<div class="message ${state.message.type}">${escapeHtml(state.message.texte)}</div>` : ''}
+      ${!state.revealEnCours ? `<button class="cta" data-action="lancer-reveal">✦ Révéler ✦</button>`
+        : `<button class="cta-second" data-action="relancer-reveal">Recommencer</button>`}
+    </div>`;
+}
+
+// ════════════════════════════════════════════════════════════
+//  ÉVÉNEMENTS
+// ════════════════════════════════════════════════════════════
+function attachEvents() {
+  document.querySelectorAll('[data-action]').forEach(el => {
+    el.addEventListener('click', async (e) => {
+      const a = el.getAttribute('data-action');
+      if (a === 'go-vote') retourAccueilVote();
+      else if (a === 'go-admin') {
+        state.vue = sessionStorage.getItem('balReineAuth') === 'ok' ? 'admin' : 'admin-login';
+        location.hash = '#/admin'; render();
+      }
+      else if (a === 'go-accueil') navigate('accueil');
+      else if (a === 'efface') effacerCode();
+      else if (a === 'choisir') {
+        const cat = el.getAttribute('data-cat'), id = el.getAttribute('data-id');
+        if (cat === 'roi') state.choixRoi = id; else state.choixReine = id;
+        state.message = null; render();
+      }
+      else if (a === 'valider-vote') envoyerVote();
+      else if (a === 'annuler-vote') retourAccueilVote();
+      else if (a === 'vote-suivant') retourAccueilVote();
+      else if (a === 'connect-admin') {
+        const pwd = (document.getElementById('input-password') || {}).value || '';
+        if (pwd === ADMIN_PASSWORD) { sessionStorage.setItem('balReineAuth', 'ok'); state.vue = 'admin'; state.message = null; render(); }
+        else { state.message = { type: 'erreur', texte: "Mot de passe incorrect." }; render(); }
+      }
+      else if (a === 'deconnexion') { sessionStorage.removeItem('balReineAuth'); navigate('accueil'); }
+      else if (a === 'ajouter-cand') ajouterCandidat(el.getAttribute('data-cat'));
+      else if (a === 'suppr-cand') supprimerCandidat(el.getAttribute('data-cat'), el.getAttribute('data-id'));
+      else if (a === 'generer') genererCodes(parseInt(el.getAttribute('data-nb'), 10));
+      else if (a === 'imprimer') imprimerCodes();
+      else if (a === 'reinit-votes') reinitVotes();
+      else if (a === 'effacer-codes') effacerCodes();
+      else if (a === 'ouvrir-reveal') { state.revealEnCours = false; navigate('reveal'); }
+      else if (a === 'lancer-reveal') lancerRevelation();
+      else if (a === 'relancer-reveal') { state.revealEnCours = false; render(); }
+    });
+  });
+
+  // pavé tactile (chiffres / lettres)
+  document.querySelectorAll('[data-key]').forEach(el => {
+    el.addEventListener('click', () => taperCode(el.getAttribute('data-key')));
+  });
+
+  // entrée clavier pour ajout candidat & mot de passe
+  ['roi', 'reine'].forEach(cat => {
+    const inp = document.getElementById('input-' + cat);
+    if (inp) inp.addEventListener('keydown', e => { if (e.key === 'Enter') ajouterCandidat(cat); });
+  });
+  const pwd = document.getElementById('input-password');
+  if (pwd) { pwd.addEventListener('keydown', e => { if (e.key === 'Enter') document.querySelector('[data-action="connect-admin"]').click(); }); pwd.focus(); }
+}
+
+// ════════════════════════════════════════════════════════════
+//  INIT
+// ════════════════════════════════════════════════════════════
+const hash = location.hash;
+if (hash === '#/admin') state.vue = sessionStorage.getItem('balReineAuth') === 'ok' ? 'admin' : 'admin-login';
+else if (hash === '#/vote') state.vue = 'vote-code';
+else if (hash === '#/reveal') state.vue = 'reveal';
+
+if (firebaseReady) startListeners();
+render();
+</script>
+</body>
+</html>
