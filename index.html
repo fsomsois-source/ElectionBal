@@ -340,7 +340,7 @@
   .chaudron-scene {
     position: relative;
     width: min(480px, 92vw);
-    height: min(480px, 70vh);
+    height: min(440px, 60vh);
     margin: 10px auto;
     display: flex; align-items: flex-end; justify-content: center;
   }
@@ -374,6 +374,17 @@
   .nom-tombe.roi { color: #cfe0ff; }
   .nom-tombe.reine { color: #ffd9ea; }
 
+  /* noms qui bouillonnent DANS le chaudron (tournoient + remontent/replongent) */
+  .nom-churn {
+    position: absolute; z-index: 4; top: 0; left: 0;
+    font-family:'Cormorant Garamond',serif; font-weight:700;
+    font-size: clamp(15px, 2.9vw, 23px); white-space: nowrap;
+    text-shadow: 0 2px 10px rgba(0,0,0,0.85), 0 0 14px rgba(255,170,60,0.25);
+    pointer-events: none; will-change: transform, opacity;
+  }
+  .nom-churn.roi { color: #d4e3ff; }
+  .nom-churn.reine { color: #ffdcec; }
+
   /* flash du climax */
   .flash {
     position: fixed; inset: 0; z-index: 50; pointer-events: none;
@@ -381,16 +392,29 @@
     opacity: 0;
   }
 
-  /* parchemins gagnants */
-  .parchemins { display: flex; flex-direction: column; gap: 14px; align-items: center; margin-top: 6px; width: 100%; }
+  /* parchemins gagnants — superposés au centre, hors flux (zéro scroll) */
+  .parchemins {
+    position: absolute; inset: 0; z-index: 6; pointer-events: none;
+    display: flex; flex-direction: column; gap: 2.5vh;
+    align-items: center; justify-content: center;
+  }
+  @media (min-aspect-ratio: 1/1) {
+    .parchemins { flex-direction: row; gap: 3vw; }
+    .parchemin { width: min(46vw, 540px); }
+  }
   .parchemin {
-    position: relative; width: min(560px, 94vw); aspect-ratio: 820 / 553;
+    position: relative; width: min(540px, 92vw); aspect-ratio: 820 / 553;
+    max-height: 44vh;
     background-size: contain; background-repeat: no-repeat; background-position: center;
     display: flex; align-items: center; justify-content: center;
-    opacity: 0; transform: scale(0.6); 
+    opacity: 0; transform: scale(0.6);
   }
-  .parchemin.show { animation: parcheminEntre 0.9s cubic-bezier(0.18,0.9,0.25,1.1) forwards; }
-  @keyframes parcheminEntre { 0%{opacity:0;transform:scale(0.6) translateY(20px)} 60%{opacity:1;transform:scale(1.05)} 100%{opacity:1;transform:scale(1)} }
+  .parchemin.show { animation: parcheminEntre 1s cubic-bezier(0.16,0.84,0.3,1.06) forwards; }
+  @keyframes parcheminEntre {
+    0%   { opacity:0; transform: scale(0.5) translateY(28px); filter: blur(7px) drop-shadow(0 0 0 rgba(212,175,55,0)); }
+    55%  { opacity:1; transform: scale(1.06) translateY(0);   filter: blur(0)   drop-shadow(0 0 28px rgba(212,175,55,0.65)); }
+    100% { opacity:1; transform: scale(1)    translateY(0);   filter: blur(0)   drop-shadow(0 0 10px rgba(212,175,55,0.28)); }
+  }
   .parchemin-contenu { text-align: center; width: 52%; margin-bottom: 4%; }
   .parchemin-role { font-family:'Italiana',serif; text-transform:uppercase; letter-spacing:4px; font-size: clamp(11px,1.8vw,15px); color: var(--rouge); margin-bottom: 2px; }
   .parchemin-nom {
@@ -457,9 +481,9 @@ const MUSIQUE_REVELATION_URL = "";
 // ─── Minutage de la révélation (à caler sur ton morceau) ───
 // CLIMAX_MS = instant où le roi et la reine s'inscrivent dans les parchemins.
 // Le bouillonnement s'intensifie jusque-là. Cale-le sur le climax de la musique.
-const CLIMAX_MS = 25000;
+const CLIMAX_MS = 20000;
 // NOMS_DEBUT_MS = quand les noms commencent à pleuvoir dans le chaudron.
-const NOMS_DEBUT_MS = 5000;
+const NOMS_DEBUT_MS = 2500;
 
 // Toutes les données de l'élection vivent sous "election/" pour ne rien
 // mélanger avec les chansons (qui sont sous "votes/", "candidatures/"…).
@@ -775,19 +799,73 @@ function animerChaudron(roiList, reineList, gRoi, gReine) {
   const t0 = performance.now();
   const pool = roiList.map(c => ({ nom: c.nom, cls: 'roi' }))
               .concat(reineList.map(c => ({ nom: c.nom, cls: 'reine' })));
-  const finPluie = CLIMAX_MS - 2500; // les noms cessent de tomber un peu avant le climax
+  const finPluie = CLIMAX_MS - 2500; // les noms ont fini de tomber un peu avant le climax
   let climaxFait = false;
 
-  // pluie de noms : cadence qui s'accélère avec l'intensité
-  function planifierProchainNom() {
-    const elapsed = performance.now() - t0;
-    if (elapsed >= finPluie || !document.getElementById('chaudron-scene')) return;
-    const p = Math.min(1, elapsed / CLIMAX_MS);
-    fairePleuvoirNom(scene, pool[Math.floor(Math.random() * pool.length)]);
-    const delai = 520 - p * 380;  // de ~520ms à ~140ms entre deux noms
-    setTimeout(planifierProchainNom, Math.max(120, delai));
+  // ── bouillon : les noms tombés tournoient + remontent/replongent dans la marmite ──
+  const churn = [];
+  const MAX_CHURN = 12;
+  function ajouterChurn(item) {
+    const sc = document.getElementById('chaudron-scene'); if (!sc) return;
+    const el = document.createElement('div');
+    el.className = 'nom-churn ' + item.cls;
+    el.textContent = item.nom;
+    sc.appendChild(el);
+    churn.push({
+      el, born: performance.now(),
+      theta: Math.random() * Math.PI * 2,     // angle sur le cercle
+      dir: Math.random() < 0.5 ? -1 : 1,       // sens de rotation
+      bobPhase: Math.random() * Math.PI * 2,   // déphasage du bouillon (jostle)
+      rJit: 0.65 + Math.random() * 0.7         // rayon propre
+    });
+    // si la marmite est pleine, le plus ancien coule
+    if (churn.length > MAX_CHURN) {
+      const vieux = churn.shift();
+      const a = vieux.el.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 400, fill: 'forwards' });
+      a.onfinish = () => vieux.el.remove();
+    }
   }
-  setTimeout(planifierProchainNom, NOMS_DEBUT_MS);
+  function majChurn(now, p) {
+    const sc = document.getElementById('chaudron-scene'); if (!sc) return;
+    const W = sc.clientWidth, H = sc.clientHeight;
+    const cx = W * 0.5, cy = H * 0.50;          // centre de l'ouverture
+    for (const c of churn) {
+      const age = now - c.born;
+      c.theta += c.dir * (0.5 + p * 2.0) * 0.016;             // tournoie, accélère avec p
+      const bob = Math.sin(c.bobPhase + age * 0.005 * (1 + p)); // -1..1 : bouillon
+      const rx = W * 0.20 * c.rJit * (0.7 + 0.3 * Math.sin(age * 0.0016));
+      const ry = H * 0.05 * c.rJit;
+      const x = cx + Math.cos(c.theta) * rx;
+      const y = cy + Math.sin(c.theta) * ry - bob * H * 0.06;  // remonte/replonge
+      const surf = (bob + 1) / 2;                              // 1 = en surface
+      const scale = 0.5 + surf * 0.6;
+      let op = (0.22 + surf * 0.78) * Math.min(1, age / 350);  // lisible en surface, fondu à l'arrivée
+      c.el.style.transform = `translate(-50%,-50%) translate(${x.toFixed(1)}px,${y.toFixed(1)}px) scale(${scale.toFixed(3)})`;
+      c.el.style.opacity = op.toFixed(3);
+    }
+  }
+  function dissoudreChurn() {
+    for (const c of churn) {
+      const a = c.el.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 450, fill: 'forwards' });
+      a.onfinish = () => c.el.remove();
+    }
+    churn.length = 0;
+  }
+
+  // pluie de noms : chaque candidat tombe UNE SEULE FOIS, cadence qui s'accélère (tension)
+  const ordre = pool.slice();
+  for (let i = ordre.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [ordre[i], ordre[j]] = [ordre[j], ordre[i]];
+  }
+  const n = ordre.length;
+  ordre.forEach((item, i) => {
+    const frac = n > 1 ? i / (n - 1) : 0;
+    const t = NOMS_DEBUT_MS + Math.pow(frac, 1.7) * (finPluie - NOMS_DEBUT_MS);
+    setTimeout(() => {
+      if (document.getElementById('chaudron-scene')) fairePleuvoirNom(scene, item, ajouterChurn);
+    }, t);
+  });
 
   // boucle d'intensité : lueur, secousse, bulles montent avec le temps
   let dernierBulle = 0;
@@ -813,9 +891,11 @@ function animerChaudron(roiList, reineList, gRoi, gReine) {
       dernierBulle = now;
       fAireBulle(scene, p);
     }
+    // noms qui bouillonnent dans la marmite
+    majChurn(now, p);
 
     if (elapsed >= CLIMAX_MS) {
-      if (!climaxFait) { climaxFait = true; climax(gRoi, gReine); }
+      if (!climaxFait) { climaxFait = true; dissoudreChurn(); climax(gRoi, gReine); }
       return;
     }
     requestAnimationFrame(boucle);
@@ -823,24 +903,23 @@ function animerChaudron(roiList, reineList, gRoi, gReine) {
   requestAnimationFrame(boucle);
 }
 
-function fairePleuvoirNom(scene, item) {
+function fairePleuvoirNom(scene, item, onLand) {
   const el = document.createElement('div');
   el.className = 'nom-tombe ' + item.cls;
   el.textContent = item.nom;
   scene.appendChild(el);
   const h = scene.clientHeight;
   const largeur = scene.clientWidth;
-  const x0 = (Math.random() - 0.5) * largeur * 0.55;
-  const x1 = x0 * 0.25; // converge vers le centre (la marmite)
-  const r0 = (Math.random() - 0.5) * 30;
-  const cibleY = h * 0.50; // hauteur approximative de l'ouverture du chaudron
-  const dur = 1300 + Math.random() * 500;
+  const x0 = (Math.random() - 0.5) * largeur * 0.5;
+  const r0 = (Math.random() - 0.5) * 26;
+  const cibleY = h * 0.50; // ouverture du chaudron
+  const dur = 750 + Math.random() * 350;
   const anim = el.animate([
-    { transform: `translate(-50%,0) translate(${x0}px,-10px) rotate(${r0}deg) scale(1)`, opacity: 0 },
-    { transform: `translate(-50%,0) translate(${x0*0.7}px, ${cibleY*0.35}px) rotate(${r0*0.6}deg) scale(1)`, opacity: 1, offset: 0.25 },
-    { transform: `translate(-50%,0) translate(${x1}px, ${cibleY}px) rotate(${-r0}deg) scale(0.25)`, opacity: 0 }
-  ], { duration: dur, easing: 'cubic-bezier(0.45,0,0.75,1)' });
-  anim.onfinish = () => el.remove();
+    { transform: `translate(-50%,0) translate(${x0}px,-12px) rotate(${r0}deg) scale(1)`, opacity: 0 },
+    { transform: `translate(-50%,0) translate(${x0*0.5}px, ${cibleY*0.55}px) rotate(${r0*0.5}deg) scale(0.95)`, opacity: 1, offset: 0.5 },
+    { transform: `translate(-50%,0) translate(0px, ${cibleY}px) rotate(0deg) scale(0.7)`, opacity: 0.85 }
+  ], { duration: dur, easing: 'cubic-bezier(0.5,0,0.7,1)', fill: 'forwards' });
+  anim.onfinish = () => { el.remove(); if (onLand) onLand(item); };
 }
 
 function fAireBulle(scene, p) {
@@ -1175,7 +1254,7 @@ function panneauReglages() {
 
 function parcheminHtml(cat, role) {
   return `
-    <div class="parchemin" id="parchemin-${cat}" style="background-image:url('Parchemin.png')">
+    <div class="parchemin" id="parchemin-${cat}" style="background-image:url('https://raw.githubusercontent.com/fsomsois-source/ElectionBal/main/Parchemin.png')">
       <div class="parchemin-contenu">
         <div class="parchemin-role">${role}</div>
         <div class="parchemin-nom" id="pnom-${cat}">—</div>
@@ -1193,7 +1272,7 @@ function vueReveal() {
 
       <div class="chaudron-scene" id="chaudron-scene">
         <div class="chaudron-glow" id="chaudron-glow"></div>
-        <img class="chaudron-img" id="chaudron-img" src="Chaudron.png" alt="" />
+        <img class="chaudron-img" id="chaudron-img" src="https://raw.githubusercontent.com/fsomsois-source/ElectionBal/main/Chaudron.png" alt="" />
       </div>
 
       <div class="parchemins">
