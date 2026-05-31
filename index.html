@@ -369,12 +369,12 @@
     position: absolute; z-index: 4; left: 0; top: 0; width: 0; height: 0;
     border-radius: 50% / 50%; overflow: hidden; pointer-events: none;
   }
-  /* lueur de potion qui luit dans la marmite */
+  /* surface de potion lumineuse qui remplit l'ouverture */
   .potion-glow {
-    position: absolute; left: 50%; top: 50%; width: 160%; height: 180%;
-    transform: translate(-50%,-50%); border-radius: 50%;
-    background: radial-gradient(ellipse at 50% 42%, rgba(170,255,205,0), rgba(70,205,150,0) 60%, transparent 80%);
-    filter: blur(6px); pointer-events: none;
+    position: absolute; left: 0; top: 0; width: 100%; height: 100%;
+    border-radius: 50% / 50%;
+    background: radial-gradient(ellipse at 50% 45%, rgba(190,255,215,0.0), rgba(70,210,150,0.0) 55%, transparent 78%);
+    box-shadow: 0 0 0 rgba(70,220,160,0); pointer-events: none;
   }
 
   .nom-tombe {
@@ -844,11 +844,11 @@ function animerChaudron(roiList, reineList, gRoi, gReine) {
     const img = document.getElementById('chaudron-img');
     const m = mouthEl();
     if (!sc || !img || !m) return;
-    // cale la bouche pile sur l'ouverture de l'image (gère le letterbox)
+    // cale la bouche pile sur l'ouverture de l'image (mesurée : ~18% de hauteur)
     const sr = sc.getBoundingClientRect(), ir = img.getBoundingClientRect();
-    const W = ir.width * 0.52, H = ir.height * 0.17;
+    const W = ir.width * 0.46, H = ir.height * 0.13;
     m.style.left = ((ir.left - sr.left) + ir.width * 0.5 - W / 2) + 'px';
-    m.style.top  = ((ir.top - sr.top) + ir.height * 0.27) + 'px';
+    m.style.top  = ((ir.top - sr.top) + ir.height * 0.135) + 'px';
     m.style.width = W + 'px'; m.style.height = H + 'px';
     // noms qui bouillonnent DANS la bouche : surface en haut, replongent (clippés) en bas
     const cx = W * 0.5, cy = H * 0.60;
@@ -904,12 +904,14 @@ function animerChaudron(roiList, reineList, gRoi, gReine) {
       glow.style.transform = `translate(-50%,0) scale(${0.8 + p * 0.5})`;
       glow.style.filter = `blur(${8 + p * 10}px)`;
     }
-    // lueur de potion dans l'ouverture (luit et pulse, monte avec la tension)
+    // surface de potion lumineuse dans l'ouverture (luit et pulse, monte avec la tension)
     const pg = document.getElementById('potion-glow');
     if (pg) {
-      const a = 0.25 + p * 0.6;
-      pg.style.background = `radial-gradient(ellipse at 50% 42%, rgba(180,255,210,${a.toFixed(3)}), rgba(70,210,150,${(a*0.7).toFixed(3)}) 50%, rgba(25,115,80,${(a*0.35).toFixed(3)}) 74%, transparent 87%)`;
-      pg.style.transform = `translate(-50%,-50%) scale(${(1 + 0.07 * Math.sin(now * 0.006)).toFixed(3)})`;
+      const a = 0.4 + p * 0.5;
+      const pulse = 0.85 + 0.15 * Math.sin(now * 0.007);
+      const c = (a * pulse).toFixed(3);
+      pg.style.background = `radial-gradient(ellipse at 50% 45%, rgba(205,255,225,${c}), rgba(90,230,165,${(c*0.85).toFixed(3)}) 42%, rgba(35,150,100,${(c*0.5).toFixed(3)}) 68%, rgba(15,70,50,${(c*0.3).toFixed(3)}) 84%, transparent 95%)`;
+      pg.style.boxShadow = `0 0 ${(14 + p*26).toFixed(0)}px rgba(90,235,170,${(0.35*pulse + p*0.4).toFixed(3)}), inset 0 0 ${(10+p*18).toFixed(0)}px rgba(220,255,235,${(0.3*pulse).toFixed(3)})`;
     }
     // secousse croissante sur la fin
     if (p > 0.45) {
@@ -939,10 +941,10 @@ function fairePleuvoirNom(scene, item, onLand) {
   el.textContent = item.nom;
   scene.appendChild(el);
   const img = document.getElementById('chaudron-img');
-  let cibleY = scene.clientHeight * 0.33; // défaut : ouverture approximative
+  let cibleY = scene.clientHeight * 0.20; // défaut : ouverture approximative
   if (img) {
     const sr = scene.getBoundingClientRect(), ir = img.getBoundingClientRect();
-    cibleY = (ir.top - sr.top) + ir.height * 0.30;
+    cibleY = (ir.top - sr.top) + ir.height * 0.185;
   }
   const largeur = scene.clientWidth;
   const x0 = (Math.random() - 0.5) * largeur * 0.42;
