@@ -364,6 +364,19 @@
   /* étincelles / bulles qui montent du chaudron */
   .bulle { position:absolute; z-index:2; border-radius:50%; background: radial-gradient(circle at 35% 30%, var(--or-clair), var(--or) 60%, transparent); pointer-events:none; }
 
+  /* ouverture du chaudron : masque qui confine le bouillon (les noms ne sortent que par là) */
+  .chaudron-mouth {
+    position: absolute; z-index: 4; left: 0; top: 0; width: 0; height: 0;
+    border-radius: 50% / 50%; overflow: hidden; pointer-events: none;
+  }
+  /* lueur de potion qui luit dans la marmite */
+  .potion-glow {
+    position: absolute; left: 50%; top: 50%; width: 160%; height: 180%;
+    transform: translate(-50%,-50%); border-radius: 50%;
+    background: radial-gradient(ellipse at 50% 42%, rgba(170,255,205,0), rgba(70,205,150,0) 60%, transparent 80%);
+    filter: blur(6px); pointer-events: none;
+  }
+
   .nom-tombe {
     position: absolute; z-index: 4; top: 0; left: 50%;
     font-family:'Cormorant Garamond',serif; font-weight:700;
@@ -804,21 +817,22 @@ function animerChaudron(roiList, reineList, gRoi, gReine) {
 
   // ── bouillon : les noms tombés tournoient + remontent/replongent dans la marmite ──
   const churn = [];
-  const MAX_CHURN = 12;
+  const MAX_CHURN = 7;
+  function mouthEl() { return document.getElementById('chaudron-mouth'); }
   function ajouterChurn(item) {
-    const sc = document.getElementById('chaudron-scene'); if (!sc) return;
+    const m = mouthEl(); if (!m) return;
     const el = document.createElement('div');
     el.className = 'nom-churn ' + item.cls;
     el.textContent = item.nom;
-    sc.appendChild(el);
+    m.appendChild(el);
     churn.push({
       el, born: performance.now(),
       theta: Math.random() * Math.PI * 2,     // angle sur le cercle
       dir: Math.random() < 0.5 ? -1 : 1,       // sens de rotation
       bobPhase: Math.random() * Math.PI * 2,   // déphasage du bouillon (jostle)
-      rJit: 0.65 + Math.random() * 0.7         // rayon propre
+      rJit: 0.6 + Math.random() * 0.7          // rayon propre
     });
-    // si la marmite est pleine, le plus ancien coule
+    // si l'ouverture est pleine, le plus ancien replonge
     if (churn.length > MAX_CHURN) {
       const vieux = churn.shift();
       const a = vieux.el.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 400, fill: 'forwards' });
@@ -826,20 +840,29 @@ function animerChaudron(roiList, reineList, gRoi, gReine) {
     }
   }
   function majChurn(now, p) {
-    const sc = document.getElementById('chaudron-scene'); if (!sc) return;
-    const W = sc.clientWidth, H = sc.clientHeight;
-    const cx = W * 0.5, cy = H * 0.50;          // centre de l'ouverture
+    const sc = document.getElementById('chaudron-scene');
+    const img = document.getElementById('chaudron-img');
+    const m = mouthEl();
+    if (!sc || !img || !m) return;
+    // cale la bouche pile sur l'ouverture de l'image (gère le letterbox)
+    const sr = sc.getBoundingClientRect(), ir = img.getBoundingClientRect();
+    const W = ir.width * 0.52, H = ir.height * 0.17;
+    m.style.left = ((ir.left - sr.left) + ir.width * 0.5 - W / 2) + 'px';
+    m.style.top  = ((ir.top - sr.top) + ir.height * 0.27) + 'px';
+    m.style.width = W + 'px'; m.style.height = H + 'px';
+    // noms qui bouillonnent DANS la bouche : surface en haut, replongent (clippés) en bas
+    const cx = W * 0.5, cy = H * 0.60;
     for (const c of churn) {
       const age = now - c.born;
       c.theta += c.dir * (0.5 + p * 2.0) * 0.016;             // tournoie, accélère avec p
       const bob = Math.sin(c.bobPhase + age * 0.005 * (1 + p)); // -1..1 : bouillon
-      const rx = W * 0.20 * c.rJit * (0.7 + 0.3 * Math.sin(age * 0.0016));
-      const ry = H * 0.05 * c.rJit;
+      const rx = W * 0.26 * c.rJit * (0.7 + 0.3 * Math.sin(age * 0.0016));
+      const ry = H * 0.30 * c.rJit;
       const x = cx + Math.cos(c.theta) * rx;
-      const y = cy + Math.sin(c.theta) * ry - bob * H * 0.06;  // remonte/replonge
+      const y = cy + Math.sin(c.theta) * ry - bob * H * 0.55;  // remonte (surface) / replonge (clippé)
       const surf = (bob + 1) / 2;                              // 1 = en surface
-      const scale = 0.5 + surf * 0.6;
-      let op = (0.22 + surf * 0.78) * Math.min(1, age / 350);  // lisible en surface, fondu à l'arrivée
+      const scale = 0.55 + surf * 0.5;
+      let op = (0.18 + surf * 0.82) * Math.min(1, age / 350);  // lisible en surface, fondu à l'arrivée
       c.el.style.transform = `translate(-50%,-50%) translate(${x.toFixed(1)}px,${y.toFixed(1)}px) scale(${scale.toFixed(3)})`;
       c.el.style.opacity = op.toFixed(3);
     }
@@ -881,6 +904,13 @@ function animerChaudron(roiList, reineList, gRoi, gReine) {
       glow.style.transform = `translate(-50%,0) scale(${0.8 + p * 0.5})`;
       glow.style.filter = `blur(${8 + p * 10}px)`;
     }
+    // lueur de potion dans l'ouverture (luit et pulse, monte avec la tension)
+    const pg = document.getElementById('potion-glow');
+    if (pg) {
+      const a = 0.25 + p * 0.6;
+      pg.style.background = `radial-gradient(ellipse at 50% 42%, rgba(180,255,210,${a.toFixed(3)}), rgba(70,210,150,${(a*0.7).toFixed(3)}) 50%, rgba(25,115,80,${(a*0.35).toFixed(3)}) 74%, transparent 87%)`;
+      pg.style.transform = `translate(-50%,-50%) scale(${(1 + 0.07 * Math.sin(now * 0.006)).toFixed(3)})`;
+    }
     // secousse croissante sur la fin
     if (p > 0.45) {
       scene.classList.add('secoue');
@@ -908,16 +938,20 @@ function fairePleuvoirNom(scene, item, onLand) {
   el.className = 'nom-tombe ' + item.cls;
   el.textContent = item.nom;
   scene.appendChild(el);
-  const h = scene.clientHeight;
+  const img = document.getElementById('chaudron-img');
+  let cibleY = scene.clientHeight * 0.33; // défaut : ouverture approximative
+  if (img) {
+    const sr = scene.getBoundingClientRect(), ir = img.getBoundingClientRect();
+    cibleY = (ir.top - sr.top) + ir.height * 0.30;
+  }
   const largeur = scene.clientWidth;
-  const x0 = (Math.random() - 0.5) * largeur * 0.5;
-  const r0 = (Math.random() - 0.5) * 26;
-  const cibleY = h * 0.50; // ouverture du chaudron
-  const dur = 750 + Math.random() * 350;
+  const x0 = (Math.random() - 0.5) * largeur * 0.42;
+  const r0 = (Math.random() - 0.5) * 22;
+  const dur = 650 + Math.random() * 300;
   const anim = el.animate([
-    { transform: `translate(-50%,0) translate(${x0}px,-12px) rotate(${r0}deg) scale(1)`, opacity: 0 },
-    { transform: `translate(-50%,0) translate(${x0*0.5}px, ${cibleY*0.55}px) rotate(${r0*0.5}deg) scale(0.95)`, opacity: 1, offset: 0.5 },
-    { transform: `translate(-50%,0) translate(0px, ${cibleY}px) rotate(0deg) scale(0.7)`, opacity: 0.85 }
+    { transform: `translate(-50%,0) translate(${x0}px,-14px) rotate(${r0}deg) scale(1)`, opacity: 0 },
+    { transform: `translate(-50%,0) translate(${x0*0.5}px, ${cibleY*0.55}px) rotate(${r0*0.5}deg) scale(0.9)`, opacity: 1, offset: 0.55 },
+    { transform: `translate(-50%,0) translate(0px, ${cibleY}px) rotate(0deg) scale(0.5)`, opacity: 0.12 }
   ], { duration: dur, easing: 'cubic-bezier(0.5,0,0.7,1)', fill: 'forwards' });
   anim.onfinish = () => { el.remove(); if (onLand) onLand(item); };
 }
@@ -1273,6 +1307,7 @@ function vueReveal() {
       <div class="chaudron-scene" id="chaudron-scene">
         <div class="chaudron-glow" id="chaudron-glow"></div>
         <img class="chaudron-img" id="chaudron-img" src="https://raw.githubusercontent.com/fsomsois-source/ElectionBal/main/Chaudron.png" alt="" />
+        <div class="chaudron-mouth" id="chaudron-mouth"><div class="potion-glow" id="potion-glow"></div></div>
       </div>
 
       <div class="parchemins">
