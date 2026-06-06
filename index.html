@@ -362,19 +362,12 @@
     50%{transform:translate(calc(var(--shake,2px)*-1),1px)} 75%{transform:translate(1px,var(--shake,2px))} 100%{transform:translate(0,0)}
   }
   /* étincelles / bulles qui montent du chaudron */
-  .bulle { position:absolute; z-index:2; border-radius:50%; background: radial-gradient(circle at 35% 30%, var(--or-clair), var(--or) 60%, transparent); pointer-events:none; }
+  .bulle { position:absolute; z-index:5; border-radius:50%; background: radial-gradient(circle at 35% 30%, var(--or-clair), var(--or) 60%, transparent); pointer-events:none; }
 
-  /* ouverture du chaudron : masque qui confine le bouillon (les noms ne sortent que par là) */
+  /* ouverture du chaudron : masque qui confine les noms (ils ne sortent que par là) */
   .chaudron-mouth {
     position: absolute; z-index: 4; left: 0; top: 0; width: 0; height: 0;
     border-radius: 50% / 50%; overflow: hidden; pointer-events: none;
-  }
-  /* surface de potion lumineuse qui remplit l'ouverture */
-  .potion-glow {
-    position: absolute; left: 0; top: 0; width: 100%; height: 100%;
-    border-radius: 50% / 50%;
-    background: radial-gradient(ellipse at 50% 45%, rgba(190,255,215,0.0), rgba(70,210,150,0.0) 55%, transparent 78%);
-    box-shadow: 0 0 0 rgba(70,220,160,0); pointer-events: none;
   }
 
   .nom-tombe {
@@ -716,7 +709,11 @@ async function ajouterCandidat(categorie) {
   const id = 'c' + Date.now() + Math.random().toString(36).slice(2, 7);
   const cle = categorie === 'roi' ? 'candidatsRoi' : 'candidatsReine';
   try { await patchRoot({ [cle + '/' + id]: { nom } }); inp.value = ''; }
-  catch (e) { alert("Erreur lors de l'ajout."); }
+  catch (e) {
+    const local = location.protocol !== 'http:' && location.protocol !== 'https:';
+    alert("Erreur lors de l'ajout : " + (e && e.message ? e.message : e)
+      + (local ? "\n\n⚠ La page est ouverte en local. Ouvre plutôt l'adresse github.io : l'écriture Firebase ne marche pas depuis un fichier." : ""));
+  }
 }
 async function supprimerCandidat(categorie, id) {
   const cle = categorie === 'roi' ? 'candidatsRoi' : 'candidatsReine';
@@ -904,20 +901,6 @@ function animerChaudron(roiList, reineList, gRoi, gReine) {
       glow.style.transform = `translate(-50%,0) scale(${0.8 + p * 0.5})`;
       glow.style.filter = `blur(${8 + p * 10}px)`;
     }
-    // surface de potion lumineuse dans l'ouverture (luit et pulse, monte avec la tension)
-    const pg = document.getElementById('potion-glow');
-    if (pg) {
-      const a = 0.4 + p * 0.5;
-      const pulse = 0.85 + 0.15 * Math.sin(now * 0.007);
-      const c = (a * pulse).toFixed(3);
-      pg.style.background = `radial-gradient(ellipse at 50% 45%, rgba(205,255,225,${c}), rgba(90,230,165,${(c*0.85).toFixed(3)}) 42%, rgba(35,150,100,${(c*0.5).toFixed(3)}) 68%, rgba(15,70,50,${(c*0.3).toFixed(3)}) 84%, transparent 95%)`;
-      pg.style.boxShadow = `0 0 ${(14 + p*26).toFixed(0)}px rgba(90,235,170,${(0.35*pulse + p*0.4).toFixed(3)}), inset 0 0 ${(10+p*18).toFixed(0)}px rgba(220,255,235,${(0.3*pulse).toFixed(3)})`;
-    }
-    // secousse croissante sur la fin
-    if (p > 0.45) {
-      scene.classList.add('secoue');
-      scene.style.setProperty('--shake', (1 + (p - 0.45) * 12).toFixed(1) + 'px');
-    }
     // bulles dorées qui jaillissent du chaudron
     if (now - dernierBulle > (240 - p * 200)) {
       dernierBulle = now;
@@ -925,6 +908,11 @@ function animerChaudron(roiList, reineList, gRoi, gReine) {
     }
     // noms qui bouillonnent dans la marmite
     majChurn(now, p);
+    // secousse croissante sur la fin
+    if (p > 0.45) {
+      scene.classList.add('secoue');
+      scene.style.setProperty('--shake', (1 + (p - 0.45) * 12).toFixed(1) + 'px');
+    }
 
     if (elapsed >= CLIMAX_MS) {
       if (!climaxFait) { climaxFait = true; dissoudreChurn(); climax(gRoi, gReine); }
@@ -962,15 +950,22 @@ function fAireBulle(scene, p) {
   const b = document.createElement('div');
   b.className = 'bulle';
   const taille = 4 + Math.random() * (6 + p * 12);
-  const h = scene.clientHeight, largeur = scene.clientWidth;
-  const x = largeur * (0.5 + (Math.random() - 0.5) * 0.4);
-  const yBas = h * 0.5;
+  const img = document.getElementById('chaudron-img');
+  let yBas = scene.clientHeight * 0.20, cx = scene.clientWidth * 0.5, demi = scene.clientWidth * 0.16;
+  if (img) {
+    const sr = scene.getBoundingClientRect(), ir = img.getBoundingClientRect();
+    yBas = (ir.top - sr.top) + ir.height * 0.185;   // surface de l'ouverture
+    cx = (ir.left - sr.left) + ir.width * 0.5;
+    demi = ir.width * 0.18;
+  }
+  const x = cx + (Math.random() - 0.5) * demi * 2;
   b.style.cssText += `left:${x}px;top:${yBas}px;width:${taille}px;height:${taille}px;`;
   scene.appendChild(b);
-  const monte = 40 + Math.random() * (40 + p * 80);
+  const monte = 30 + Math.random() * (40 + p * 70);
   const anim = b.animate([
-    { transform: 'translateY(0) scale(0.6)', opacity: 0.9 },
-    { transform: `translateY(-${monte}px) scale(1.1)`, opacity: 0 }
+    { transform: 'translate(-50%,0) translateY(6px) scale(0.5)', opacity: 0 },
+    { transform: 'translate(-50%,0) translateY(0) scale(1)', opacity: 0.95, offset: 0.2 },
+    { transform: `translate(-50%,0) translateY(-${monte}px) scale(1.1)`, opacity: 0 }
   ], { duration: 700 + Math.random() * 600, easing: 'ease-out' });
   anim.onfinish = () => b.remove();
 }
@@ -1309,7 +1304,7 @@ function vueReveal() {
       <div class="chaudron-scene" id="chaudron-scene">
         <div class="chaudron-glow" id="chaudron-glow"></div>
         <img class="chaudron-img" id="chaudron-img" src="https://raw.githubusercontent.com/fsomsois-source/ElectionBal/main/Chaudron.png" alt="" />
-        <div class="chaudron-mouth" id="chaudron-mouth"><div class="potion-glow" id="potion-glow"></div></div>
+        <div class="chaudron-mouth" id="chaudron-mouth"></div>
       </div>
 
       <div class="parchemins">
