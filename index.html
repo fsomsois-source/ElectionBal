@@ -824,12 +824,14 @@ function animerChaudron(roiList, reineList, gRoi, gReine) {
       churn.push({
         el, born: performance.now() + i * 120,   // apparition échelonnée, pas tous d'un coup
         theta: Math.random() * Math.PI * 2,
-        dir: Math.random() < 0.5 ? -1 : 1,        // sens de rotation
+        dir: Math.random() < 0.5 ? -1 : 1,        // sens de rotation autour du chaudron
         rFrac: 0.05 + Math.random() * 0.15,       // rayon de l'orbite (fraction largeur)
-        spin: 0.6 + Math.random() * 0.9,          // vitesse de rotation propre
-        bobPhase: Math.random() * Math.PI * 2,
-        bobSpeed: 0.004 + Math.random() * 0.003,
-        bobFrac: 0.07 + Math.random() * 0.13      // hauteur de montée (fraction hauteur)
+        spin: 0.6 + Math.random() * 0.9,          // vitesse de l'orbite
+        emergePhase: Math.random() * Math.PI * 2, // cycle émersion/immersion propre
+        emergeSpeed: 0.0015 + Math.random() * 0.0016,
+        liftMax: 0.14 + Math.random() * 0.17,     // hauteur de sortie hors du bouillon
+        tilt0: (Math.random() - 0.5) * 42,        // inclinaison propre (pas à l'horizontale)
+        spinRate: (Math.random() < 0.4 ? (Math.random() - 0.5) * 0.16 : (Math.random() - 0.5) * 0.04) // certains tournent sur eux-mêmes
       });
     });
   }
@@ -846,17 +848,24 @@ function animerChaudron(roiList, reineList, gRoi, gReine) {
     for (const c of churn) {
       const age = now - c.born;
       if (age < 0) { c.el.style.opacity = '0'; continue; }    // pas encore apparu
-      c.theta += c.dir * c.spin * vit * dt * 0.0024;          // tournoie
+      c.theta += c.dir * c.spin * vit * dt * 0.0024;          // orbite autour du chaudron
       const rx = ir.width * c.rFrac;
       const ry = rx * 0.34;                                   // ellipse (vu en perspective)
-      const lift = ir.height * c.bobFrac * (1 + p * 0.8) * (0.5 + 0.5 * Math.sin(c.bobPhase + age * c.bobSpeed * vit));
+      // cycle émersion : 1 = sorti du bouillon, 0 = enfoncé dans la marmite
+      const e = 0.5 + 0.5 * Math.sin(c.emergePhase + age * c.emergeSpeed * vit);
+      const em = e * e * (3 - 2 * e);                         // adouci
+      const lift = ir.height * c.liftMax * (1 + p * 0.5) * em;
+      const sink = ir.height * 0.03 * (1 - em);               // s'enfonce un peu quand il coule
       const x = cx + Math.cos(c.theta) * rx;
-      let y = surfaceY - ir.height * 0.03 + Math.sin(c.theta) * ry - lift;
-      const planche = surfaceY + ir.height * 0.015;
-      if (y > planche) y = planche;                           // ne replonge jamais sur le ventre
-      const scale = Math.min(1.5, 0.78 + 0.5 * (lift / (ir.height * 0.22)));  // plus gros quand il monte
-      c.el.style.transform = `translate(-50%,-50%) translate(${x.toFixed(1)}px,${y.toFixed(1)}px) scale(${scale.toFixed(3)})`;
-      c.el.style.opacity = Math.min(1, age / 350).toFixed(3);
+      let y = surfaceY - ir.height * 0.02 + Math.sin(c.theta) * ry - lift + sink;
+      const planche = surfaceY + ir.height * 0.02;
+      if (y > planche) y = planche;
+      const scale = 0.45 + 0.8 * em;                          // petit quand enfoncé, grand quand il sort
+      const rot = c.tilt0 + age * c.spinRate;                 // inclinaison + rotation propre
+      // disparaît dans le bouillon quand enfoncé -> on a l'impression qu'il en ressort
+      const op = Math.min(1, age / 350) * Math.max(0, (em - 0.12) / 0.88);
+      c.el.style.transform = `translate(-50%,-50%) translate(${x.toFixed(1)}px,${y.toFixed(1)}px) rotate(${rot.toFixed(1)}deg) scale(${scale.toFixed(3)})`;
+      c.el.style.opacity = op.toFixed(3);
     }
   }
   function dissoudreChurn() {
