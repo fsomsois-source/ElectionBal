@@ -335,13 +335,16 @@
     align-items: center; justify-content: center; padding: 4vh 20px; position: relative; overflow: hidden;
   }
   .reveal-titre { font-family:'Italiana',serif; color:var(--or-clair); font-size: clamp(26px,5vw,48px); letter-spacing:3px; text-transform:uppercase; text-align:center; text-shadow:0 0 30px rgba(212,175,55,0.3); margin-bottom: 8px; transition: opacity 0.6s; }
+  /* bouton « Révéler » : disparaît en fondu rapide une fois cliqué */
+  .cta-fadeout { animation: ctaFade 0.45s ease forwards; pointer-events: none; }
+  @keyframes ctaFade { from { opacity: 1; transform: translateY(0); } to { opacity: 0; transform: translateY(8px); } }
 
   /* Scène : chaudron + halo + noms qui tombent */
   .chaudron-scene {
     position: relative;
     width: min(480px, 92vw);
     height: min(440px, 60vh);
-    margin: 10px auto;
+    margin: 5vh auto 0;
     display: flex; align-items: flex-end; justify-content: center;
   }
   .chaudron-glow {
@@ -419,7 +422,7 @@
   .parchemin-role { font-family:'Italiana',serif; text-transform:uppercase; letter-spacing:4px; font-size: clamp(11px,1.8vw,15px); color: var(--rouge); margin-bottom: 2px; }
   .parchemin-nom {
     font-family:'Cormorant Garamond',serif; font-weight:700;
-    font-size: clamp(22px, 4.6vw, 40px); line-height: 1.05;
+    font-size: clamp(30px, 6.4vw, 56px); line-height: 1.04;
     color: #2b1d0e;
   }
   .parchemin-voix { font-family:'Cormorant Garamond',serif; font-style:italic; font-size: clamp(12px,2vw,16px); color: #5a3d1c; margin-top: 2px; }
@@ -786,6 +789,13 @@ function lancerRevelation() {
   state.revealEnCours = true;
   render();
 
+  // plein écran (déclenché par le clic) — masque les barres du navigateur sur ordinateur
+  try {
+    const root = document.documentElement;
+    const fs = root.requestFullscreen || root.webkitRequestFullscreen || root.msRequestFullscreen;
+    if (fs) fs.call(root);
+  } catch (e) {}
+
   // musique de suspense (si configurée)
   const audio = document.getElementById('audio-reveal');
   if (audio && MUSIQUE_REVELATION_URL) {
@@ -829,7 +839,7 @@ function animerChaudron(roiList, reineList, gRoi, gReine) {
         spin: 0.6 + Math.random() * 0.9,          // vitesse de l'orbite
         emergePhase: Math.random() * Math.PI * 2, // cycle émersion/immersion propre
         emergeSpeed: 0.0015 + Math.random() * 0.0016,
-        liftMax: 0.14 + Math.random() * 0.17,     // hauteur de sortie hors du bouillon
+        liftMax: 0.12 + Math.random() * 0.15,     // hauteur de sortie hors du bouillon
         tilt0: (Math.random() - 0.5) * 42,        // inclinaison propre (pas à l'horizontale)
         spinRate: (Math.random() < 0.4 ? (Math.random() - 0.5) * 0.16 : (Math.random() - 0.5) * 0.04) // certains tournent sur eux-mêmes
       });
@@ -841,6 +851,7 @@ function animerChaudron(roiList, reineList, gRoi, gReine) {
     if (!sc || !img) return;
     const sr = sc.getBoundingClientRect(), ir = img.getBoundingClientRect();
     const cx = (ir.left - sr.left) + ir.width * 0.5;
+    const oy = ir.top - sr.top;                              // haut du chaudron dans la scène
     const surfaceY = (ir.top - sr.top) + ir.height * 0.18;   // surface du bouillon
     const dt = churnLastNow ? Math.min(50, now - churnLastNow) : 16;
     churnLastNow = now;
@@ -860,6 +871,8 @@ function animerChaudron(roiList, reineList, gRoi, gReine) {
       let y = surfaceY - ir.height * 0.02 + Math.sin(c.theta) * ry - lift + sink;
       const planche = surfaceY + ir.height * 0.02;
       if (y > planche) y = planche;
+      const plafond = oy + ir.height * 0.04;                 // ne dépasse jamais le haut du chaudron (donc jamais le titre)
+      if (y < plafond) y = plafond;
       const scale = 0.45 + 0.8 * em;                          // petit quand enfoncé, grand quand il sort
       const rot = c.tilt0 + age * c.spinRate;                 // inclinaison + rotation propre
       // disparaît dans le bouillon quand enfoncé -> on a l'impression qu'il en ressort
@@ -894,7 +907,7 @@ function animerChaudron(roiList, reineList, gRoi, gReine) {
       glow.style.filter = `blur(${8 + p * 10}px)`;
     }
     // bulles dorées qui jaillissent du chaudron
-    if (now - dernierBulle > (240 - p * 200)) {
+    if (now - dernierBulle > (560 - p * 510)) {
       dernierBulle = now;
       fAireBulle(scene, p);
     }
@@ -992,6 +1005,16 @@ function climax(gRoi, gReine) {
     remplirParchemin('roi', gRoi);
     remplirParchemin('reine', gReine);
   }, 350);
+
+  // « Recommencer » réapparaît en douceur une fois la révélation faite
+  setTimeout(() => {
+    const ra = document.getElementById('reveal-actions');
+    if (!ra) return;
+    ra.innerHTML = `<button class="cta-second" data-action="relancer-reveal" style="opacity:0;transition:opacity .6s">Recommencer</button>`;
+    const b = ra.querySelector('button');
+    b.addEventListener('click', () => { state.revealEnCours = false; render(); });
+    requestAnimationFrame(() => { b.style.opacity = '1'; });
+  }, 1800);
 }
 
 function remplirParchemin(cat, g) {
@@ -1304,9 +1327,10 @@ function vueReveal() {
       </div>
 
       ${state.message ? `<div class="message ${state.message.type}">${escapeHtml(state.message.texte)}</div>` : ''}
-      <div style="margin-top:8px">
-        ${!state.revealEnCours ? `<button class="cta" data-action="lancer-reveal">✦ Révéler ✦</button>`
-          : `<button class="cta-second" data-action="relancer-reveal">Recommencer</button>`}
+      <div class="reveal-actions" id="reveal-actions" style="margin-top:8px">
+        ${!state.revealEnCours
+          ? `<button class="cta" data-action="lancer-reveal">✦ Révéler ✦</button>`
+          : `<button class="cta cta-fadeout" disabled>✦ Révéler ✦</button>`}
       </div>
     </div>`;
 }
