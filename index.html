@@ -381,7 +381,7 @@
   .nom-churn {
     position: absolute; z-index: 6; top: 0; left: 0;
     font-family:'Cinzel', serif; font-weight:600;
-    font-size: clamp(30px, 7.5vw, 58px); white-space: nowrap; letter-spacing: 1px;
+    font-size: clamp(24px, 6vw, 46px); white-space: nowrap; letter-spacing: 1px;
     text-shadow: 0 2px 14px rgba(0,0,0,0.92), 0 0 26px rgba(255,185,75,0.6);
     pointer-events: none; will-change: transform, opacity;
   }
@@ -832,7 +832,7 @@ function animerChaudron(roiList, reineList, gRoi, gReine) {
       el.style.opacity = '0';
       sc.appendChild(el);
       churn.push({
-        el, born: performance.now() + i * 120,   // apparition échelonnée, pas tous d'un coup
+        el, born: performance.now() + 1800 + i * 380,   // bulles d'abord, puis les noms entrent un par un
         theta: Math.random() * Math.PI * 2,
         dir: Math.random() < 0.5 ? -1 : 1,        // sens de rotation autour du chaudron
         rFrac: 0.05 + Math.random() * 0.15,       // rayon de l'orbite (fraction largeur)
@@ -852,7 +852,7 @@ function animerChaudron(roiList, reineList, gRoi, gReine) {
     const sr = sc.getBoundingClientRect(), ir = img.getBoundingClientRect();
     const cx = (ir.left - sr.left) + ir.width * 0.5;
     const oy = ir.top - sr.top;                              // haut du chaudron dans la scène
-    const surfaceY = (ir.top - sr.top) + ir.height * 0.18;   // surface du bouillon
+    const surfaceY = (ir.top - sr.top) + ir.height * 0.17;   // surface du bouillon (dans l'ouverture sombre)
     const dt = churnLastNow ? Math.min(50, now - churnLastNow) : 16;
     churnLastNow = now;
     const vit = 1 + p * 1.8;                                  // tourne et bout plus fort vers le climax
@@ -861,15 +861,14 @@ function animerChaudron(roiList, reineList, gRoi, gReine) {
       if (age < 0) { c.el.style.opacity = '0'; continue; }    // pas encore apparu
       c.theta += c.dir * c.spin * vit * dt * 0.0024;          // orbite autour du chaudron
       const rx = ir.width * c.rFrac;
-      const ry = rx * 0.34;                                   // ellipse (vu en perspective)
+      const ry = rx * 0.18;                                   // orbite aplatie : reste dans l'ouverture
       // cycle émersion : 1 = sorti du bouillon, 0 = enfoncé dans la marmite
       const e = 0.5 + 0.5 * Math.sin(c.emergePhase + age * c.emergeSpeed * vit);
       const em = e * e * (3 - 2 * e);                         // adouci
       const lift = ir.height * c.liftMax * (1 + p * 0.5) * em;
-      const sink = ir.height * 0.03 * (1 - em);               // s'enfonce un peu quand il coule
       const x = cx + Math.cos(c.theta) * rx;
-      let y = surfaceY - ir.height * 0.02 + Math.sin(c.theta) * ry - lift + sink;
-      const planche = surfaceY + ir.height * 0.02;
+      let y = surfaceY - ir.height * 0.01 + Math.sin(c.theta) * ry - lift;
+      const planche = surfaceY + ir.height * 0.005;           // ne descend pas sur le rebord avant
       if (y > planche) y = planche;
       const plafond = oy + ir.height * 0.04;                 // ne dépasse jamais le haut du chaudron (donc jamais le titre)
       if (y < plafond) y = plafond;
